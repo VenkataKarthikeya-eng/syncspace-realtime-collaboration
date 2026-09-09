@@ -16,6 +16,7 @@ import {
   ClientLeftMessage,
   TargetReconciledMessage,
   PongMessage,
+  DrawStroke,
 } from './protocol.js';
 
 export interface SocketConnection {
@@ -34,6 +35,7 @@ interface RoomMember {
 export class Room {
   public readonly id: string;
   private members = new Map<string, RoomMember>();
+  private strokes: DrawStroke[] = [];
   private fanMomentScore = 0;
   private scoreBroadcastScheduled = false;
 
@@ -157,6 +159,13 @@ export class Room {
     } else if (envelope.action.type === 'tap_target') {
       this.fanMomentScore += envelope.action.delta;
       this.scheduleScoreReconciliation();
+    } else if (envelope.action.type === 'stroke') {
+      this.strokes.push(envelope.action.stroke);
+      if (this.strokes.length > 500) {
+        this.strokes.shift(); // Enforce bounded memory
+      }
+    } else if (envelope.action.type === 'clear_strokes') {
+      this.strokes = [];
     }
 
     // Broadcast to everyone ELSE (no echo back to sender)
@@ -213,6 +222,7 @@ export class Room {
       roomId: this.id,
       serverTime: Date.now(),
       clients,
+      strokes: [...this.strokes],
       state: {
         fanMomentScore: this.fanMomentScore,
       },

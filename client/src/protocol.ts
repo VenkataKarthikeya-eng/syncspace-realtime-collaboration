@@ -29,7 +29,28 @@ export interface TapTargetAction {
   delta: number; // Incremental contribution
 }
 
-export type ClientAction = CursorAction | ReactionAction | TapTargetAction;
+export interface DrawStroke {
+  id: string;
+  points: Array<{ x: number; y: number }>;
+  color: string;
+  width: number;
+}
+
+export interface StrokeAction {
+  type: 'stroke';
+  stroke: DrawStroke;
+}
+
+export interface ClearStrokesAction {
+  type: 'clear_strokes';
+}
+
+export type ClientAction =
+  | CursorAction
+  | ReactionAction
+  | TapTargetAction
+  | StrokeAction
+  | ClearStrokesAction;
 
 // ============================================================================
 // Client Metadata
@@ -90,6 +111,7 @@ export interface RoomSnapshotMessage {
   roomId: string;
   serverTime: number;
   clients: Participant[];
+  strokes: DrawStroke[]; // Persistent canvas strokes for new and reconnecting joiners
   state: {
     fanMomentScore: number;
   };

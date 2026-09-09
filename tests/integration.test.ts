@@ -300,6 +300,154 @@ async function runTests() {
     const reconMsg = c2Messages.find((m) => m.type === 'target_reconciled');
     assert(reconMsg !== undefined && reconMsg.totalScore >= 5, 'Collaborative tap target reconciled across clients');
 
+    // --------------------------------------------------------------------------
+    // Test Section 3: Canvas Drawing Persistence & Real-time Stroke Sync
+    // --------------------------------------------------------------------------
+    console.log('\n--- 3. Testing Canvas Stroke Persistence & Real-time Sync ---');
+
+    // Client 1 draws two strokes
+    const stroke1 = {
+      id: 'stroke_1',
+      points: [{ x: 0.1, y: 0.1 }, { x: 0.2, y: 0.2 }, { x: 0.25, y: 0.25 }],
+      color: '#2563eb',
+      width: 2.5,
+    };
+    const stroke2 = {
+      id: 'stroke_2',
+      points: [{ x: 0.3, y: 0.3 }, { x: 0.4, y: 0.4 }, { x: 0.45, y: 0.45 }],
+      color: '#dc2626',
+      width: 3.0,
+    };
+
+    client1.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'action',
+      roomId: 'room-test',
+      clientId: 'c1',
+      seq: 3,
+      timestamp: Date.now(),
+      action: { type: 'stroke', stroke: stroke1 },
+    }))));
+
+    client1.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'action',
+      roomId: 'room-test',
+      clientId: 'c1',
+      seq: 4,
+      timestamp: Date.now(),
+      action: { type: 'stroke', stroke: stroke2 },
+    }))));
+
+    await new Promise((r) => setTimeout(r, 80));
+
+    // Client 2 should receive live broadcast for both strokes
+    const c2Stroke1 = c2Messages.find((m) => m.type === 'action' && m.action?.type === 'stroke' && m.action.stroke.id === 'stroke_1');
+    const c2Stroke2 = c2Messages.find((m) => m.type === 'action' && m.action?.type === 'stroke' && m.action.stroke.id === 'stroke_2');
+    assert(c2Stroke1 !== undefined, 'Client 2 received live broadcast of stroke 1');
+    assert(c2Stroke2 !== undefined, 'Client 2 received live broadcast of stroke 2');
+
+    // Client 3 (New Viewer Tab) connects AFTER strokes were drawn
+    const client3 = await connectTestClient();
+    let c3Buffer = Buffer.alloc(0);
+    const c3Messages: any[] = [];
+    client3.on('data', (chunk) => {
+      c3Buffer = Buffer.concat([c3Buffer, chunk]);
+      while (true) {
+        const frame = parseServerFrame(c3Buffer);
+        if (!frame) break;
+        c3Buffer = c3Buffer.subarray(frame.nextOffset);
+        if (frame.opcode === 0x1) {
+          c3Messages.push(JSON.parse(frame.text));
+        }
+      }
+    });
+
+    client3.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'join',
+      roomId: 'room-test',
+      clientId: 'c3',
+      clientInfo: { name: 'Charlie', color: '#8b5cf6' },
+    }))));
+
+    await new Promise((r) => setTimeout(r, 100));
+
+    // Verify Client 3 snapshot immediately contains both existing strokes!
+    const c3Snapshot = c3Messages.find((m) => m.type === 'snapshot');
+    assert(c3Snapshot !== undefined, 'Client 3 received room snapshot upon joining');
+    assert(Array.isArray(c3Snapshot?.strokes), 'Client 3 snapshot contains strokes array');
+    assert(
+      c3Snapshot?.strokes?.length === 2 &&
+      c3Snapshot.strokes[0].id === 'stroke_1' &&
+      c3Snapshot.strokes[1].id === 'stroke_2',
+      'Client 3 (Viewer Tab) immediately received all persisted canvas strokes!'
+    );
+
+    // Client 1 draws a 3rd stroke while Client 3 is watching
+    const stroke3 = {
+      id: 'stroke_3',
+      points: [{ x: 0.5, y: 0.5 }, { x: 0.6, y: 0.6 }],
+      color: '#059669',
+      width: 2.0,
+    };
+    client1.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'action',
+      roomId: 'room-test',
+      clientId: 'c1',
+      seq: 5,
+      timestamp: Date.now(),
+      action: { type: 'stroke', stroke: stroke3 },
+    }))));
+
+    await new Promise((r) => setTimeout(r, 80));
+
+    // Verify Client 3 instantly receives the 3rd stroke
+    const c3Stroke3 = c3Messages.find((m) => m.type === 'action' && m.action?.type === 'stroke' && m.action.stroke.id === 'stroke_3');
+    assert(c3Stroke3 !== undefined, 'Client 3 instantly received live broadcast of stroke 3 from Client 1');
+
+    // Client 1 clears strokes
+    client1.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'action',
+      roomId: 'room-test',
+      clientId: 'c1',
+      seq: 6,
+      timestamp: Date.now(),
+      action: { type: 'clear_strokes' },
+    }))));
+
+    await new Promise((r) => setTimeout(r, 80));
+
+    const c3Clear = c3Messages.find((m) => m.type === 'action' && m.action?.type === 'clear_strokes');
+    assert(c3Clear !== undefined, 'Client 3 received clear_strokes broadcast');
+
+    // Client 4 connects after clear: snapshot must have 0 strokes
+    const client4 = await connectTestClient();
+    let c4Buffer = Buffer.alloc(0);
+    const c4Messages: any[] = [];
+    client4.on('data', (chunk) => {
+      c4Buffer = Buffer.concat([c4Buffer, chunk]);
+      while (true) {
+        const frame = parseServerFrame(c4Buffer);
+        if (!frame) break;
+        c4Buffer = c4Buffer.subarray(frame.nextOffset);
+        if (frame.opcode === 0x1) {
+          c4Messages.push(JSON.parse(frame.text));
+        }
+      }
+    });
+
+    client4.write(createMaskedFrame(0x1, Buffer.from(JSON.stringify({
+      type: 'join',
+      roomId: 'room-test',
+      clientId: 'c4',
+      clientInfo: { name: 'Dana', color: '#ec4899' },
+    }))));
+
+    await new Promise((r) => setTimeout(r, 100));
+    const c4Snapshot = c4Messages.find((m) => m.type === 'snapshot');
+    assert(c4Snapshot !== undefined && c4Snapshot.strokes?.length === 0, 'Client 4 snapshot reflects cleared strokes state');
+
+    client3.destroy();
+    client4.destroy();
+
     // Disconnect Client 2 and verify Client 1 receives client_left
     // Send standard RFC 6455 Close frame (0x8)
     const closePayload = Buffer.alloc(2);

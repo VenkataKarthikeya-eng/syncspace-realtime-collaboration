@@ -21,6 +21,7 @@ import {
   ServerMessage,
   Participant,
   ClientInfo,
+  DrawStroke,
   validateServerMessage,
 } from './protocol.js';
 
@@ -55,6 +56,7 @@ export interface RoomInstance {
   onStatusChange(handler: (status: ConnectionStatus) => void): () => void;
   onStatsChange(handler: (stats: SyncStats) => void): () => void;
   onTargetReconciled(handler: (targetId: string, score: number) => void): () => void;
+  onStrokesSync(handler: (strokes: DrawStroke[]) => void): () => void;
 
   setSimulatedLatency(latencyMs: number): void;
   setSimulatedDropRate(ratePercent: number): void;
@@ -127,6 +129,8 @@ export function createRoom(options: CreateRoomOptions): RoomInstance {
   const statusHandlers = new Set<(status: ConnectionStatus) => void>();
   const statsHandlers = new Set<(stats: SyncStats) => void>();
   const targetReconciledHandlers = new Set<(targetId: string, score: number) => void>();
+  const strokesSyncHandlers = new Set<(strokes: DrawStroke[]) => void>();
+  let cachedStrokes: DrawStroke[] | null = null;
 
   function updateStatus(newStatus: ConnectionStatus) {
     if (status === newStatus) return;
@@ -255,6 +259,10 @@ export function createRoom(options: CreateRoomOptions): RoomInstance {
           case 'snapshot': {
             participants = msg.clients;
             presenceHandlers.forEach(h => h([...participants]));
+            if (msg.strokes && Array.isArray(msg.strokes)) {
+              cachedStrokes = msg.strokes;
+              strokesSyncHandlers.forEach(h => h(msg.strokes));
+            }
             break;
           }
 
@@ -439,6 +447,14 @@ export function createRoom(options: CreateRoomOptions): RoomInstance {
     onTargetReconciled(handler) {
       targetReconciledHandlers.add(handler);
       return () => targetReconciledHandlers.delete(handler);
+    },
+
+    onStrokesSync(handler) {
+      strokesSyncHandlers.add(handler);
+      if (cachedStrokes !== null) {
+        handler([...cachedStrokes]);
+      }
+      return () => strokesSyncHandlers.delete(handler);
     },
 
     setSimulatedLatency(latencyMs: number) {

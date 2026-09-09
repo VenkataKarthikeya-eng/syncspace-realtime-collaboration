@@ -10,7 +10,7 @@
  */
 
 import { InterpolationEngine, RenderedCursor } from './interpolation.js';
-import { Participant } from './protocol.js';
+import { Participant, DrawStroke } from './protocol.js';
 
 interface Particle {
   x: number;
@@ -35,12 +35,6 @@ interface ClickRipple {
   alpha: number;
 }
 
-export interface DrawStroke {
-  points: Array<{ x: number; y: number }>;
-  color: string;
-  width: number;
-}
-
 export class CanvasRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -49,6 +43,7 @@ export class CanvasRenderer {
   private particles: Particle[] = [];
   private ripples: ClickRipple[] = [];
   private strokes: DrawStroke[] = [];
+  private currentLocalStroke: DrawStroke | null = null;
   private participantsMap = new Map<string, Participant>();
   private localClientId: string;
   private dpr = 1;
@@ -80,15 +75,27 @@ export class CanvasRenderer {
     this.localClientId = id;
   }
 
+  public setStrokes(strokes: DrawStroke[]): void {
+    this.strokes = [...strokes];
+  }
+
+  public setLocalDrawingStroke(stroke: DrawStroke | null): void {
+    this.currentLocalStroke = stroke ? { ...stroke, points: [...stroke.points] } : null;
+  }
+
   public addStroke(stroke: DrawStroke): void {
+    if (this.strokes.some(s => s.id === stroke.id)) {
+      return;
+    }
     this.strokes.push(stroke);
-    if (this.strokes.length > 150) {
+    if (this.strokes.length > 500) {
       this.strokes.shift(); // Enforce bounded memory
     }
   }
 
   public clearStrokes(): void {
     this.strokes = [];
+    this.currentLocalStroke = null;
   }
 
   public handleResize = (): void => {
@@ -179,9 +186,13 @@ export class CanvasRenderer {
     this.ctx.clearRect(0, 0, width, height);
 
     // 1. Draw Collaborative Freehand Strokes with Smooth Quadratic Bézier Curves
-    for (const stroke of this.strokes) {
+    const allStrokes = this.currentLocalStroke
+      ? [...this.strokes, this.currentLocalStroke]
+      : this.strokes;
+
+    for (const stroke of allStrokes) {
       const pts = stroke.points;
-      if (pts.length < 2) continue;
+      if (pts.length === 0) continue;
 
       this.ctx.save();
       this.ctx.beginPath();
@@ -189,6 +200,14 @@ export class CanvasRenderer {
       this.ctx.lineWidth = stroke.width;
       this.ctx.lineCap = 'round';
       this.ctx.lineJoin = 'round';
+
+      if (pts.length === 1) {
+        this.ctx.arc(pts[0].x * width, pts[0].y * height, stroke.width / 2, 0, Math.PI * 2);
+        this.ctx.fillStyle = stroke.color;
+        this.ctx.fill();
+        this.ctx.restore();
+        continue;
+      }
 
       this.ctx.moveTo(pts[0].x * width, pts[0].y * height);
 

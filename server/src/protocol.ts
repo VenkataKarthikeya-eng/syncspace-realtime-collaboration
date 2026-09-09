@@ -30,7 +30,28 @@ export interface TapTargetAction {
   delta: number; // Incremental contribution
 }
 
-export type ClientAction = CursorAction | ReactionAction | TapTargetAction;
+export interface DrawStroke {
+  id: string;
+  points: Array<{ x: number; y: number }>;
+  color: string;
+  width: number;
+}
+
+export interface StrokeAction {
+  type: 'stroke';
+  stroke: DrawStroke;
+}
+
+export interface ClearStrokesAction {
+  type: 'clear_strokes';
+}
+
+export type ClientAction =
+  | CursorAction
+  | ReactionAction
+  | TapTargetAction
+  | StrokeAction
+  | ClearStrokesAction;
 
 // ============================================================================
 // Client Metadata
@@ -91,6 +112,7 @@ export interface RoomSnapshotMessage {
   roomId: string;
   serverTime: number;
   clients: Participant[];
+  strokes: DrawStroke[]; // Persistent canvas strokes for new and reconnecting joiners
   state: {
     fanMomentScore: number;
   };
@@ -163,7 +185,6 @@ export function validateClientAction(data: unknown): ClientAction | null {
   if (data.type === 'cursor') {
     if (typeof data.x !== 'number' || typeof data.y !== 'number') return null;
     if (!Number.isFinite(data.x) || !Number.isFinite(data.y)) return null;
-    // Clamp to [0, 1] for safety
     const x = Math.max(0, Math.min(1, data.x));
     const y = Math.max(0, Math.min(1, data.y));
     return { type: 'cursor', x, y };
@@ -184,9 +205,38 @@ export function validateClientAction(data: unknown): ClientAction | null {
   if (data.type === 'tap_target') {
     if (typeof data.targetId !== 'string' || data.targetId.length === 0 || data.targetId.length > 50) return null;
     if (typeof data.delta !== 'number' || !Number.isFinite(data.delta)) return null;
-    // Cap delta per action to prevent abuse
     const delta = Math.max(1, Math.min(50, Math.floor(data.delta)));
     return { type: 'tap_target', targetId: data.targetId, delta };
+  }
+
+  if (data.type === 'stroke') {
+    if (!isObject(data.stroke)) return null;
+    const stroke = data.stroke;
+    if (typeof stroke.id !== 'string' || !Array.isArray(stroke.points)) return null;
+    if (typeof stroke.color !== 'string' || typeof stroke.width !== 'number') return null;
+    const points: Array<{ x: number; y: number }> = [];
+    for (const pt of stroke.points.slice(0, 300)) {
+      if (!isObject(pt) || typeof pt.x !== 'number' || typeof pt.y !== 'number') continue;
+      if (!Number.isFinite(pt.x) || !Number.isFinite(pt.y)) continue;
+      points.push({
+        x: Math.max(0, Math.min(1, pt.x)),
+        y: Math.max(0, Math.min(1, pt.y)),
+      });
+    }
+    if (points.length === 0) return null;
+    return {
+      type: 'stroke',
+      stroke: {
+        id: stroke.id.slice(0, 64),
+        points,
+        color: stroke.color.slice(0, 32),
+        width: Math.max(1, Math.min(20, stroke.width)),
+      },
+    };
+  }
+
+  if (data.type === 'clear_strokes') {
+    return { type: 'clear_strokes' };
   }
 
   return null;
@@ -267,7 +317,7 @@ export function validateServerMessage(raw: unknown): ServerMessage | null {
       return raw as unknown as ClientLeftMessage;
 
     case 'action':
-      if (typeof raw.roomId !== 'string' || typeof raw.clientId !== 'string') return null;
+      if (typeof raw.roomId !== 'string' || typeof raw.clientId !== 'string' || !isObject(raw.action)) return null;
       return raw as unknown as BroadcastActionEnvelope;
 
     case 'pong':

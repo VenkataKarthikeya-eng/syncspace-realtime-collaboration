@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createRoom, RoomInstance, ConnectionStatus, SyncStats } from './connection.js';
 import { InterpolationEngine } from './interpolation.js';
 import { CanvasRenderer } from './render.js';
-import { Participant } from './protocol.js';
+import { Participant, DrawStroke } from './protocol.js';
 
 export function App() {
   // Session & Connection State
@@ -34,7 +34,7 @@ export function App() {
   const [activeTool, setActiveTool] = useState<'cursor' | 'pen' | 'reaction'>('cursor');
   const [penColor, setPenColor] = useState<string>('#2563eb');
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
-  const currentStrokeRef = useRef<{ points: Array<{ x: number; y: number }>; color: string; width: number } | null>(null);
+  const currentStrokeRef = useRef<DrawStroke | null>(null);
 
   // Virtual Collaborator Demo (makes canvas feel alive immediately)
   const [virtualCollaboratorEnabled, setVirtualCollaboratorEnabled] = useState<boolean>(true);
@@ -60,6 +60,12 @@ export function App() {
     const interpolation = new InterpolationEngine({ renderDelayMs: renderDelay });
     interpolationRef.current = interpolation;
 
+    if (canvasRef.current) {
+      const renderer = new CanvasRenderer(canvasRef.current, interpolation, clientId);
+      rendererRef.current = renderer;
+      renderer.start();
+    }
+
     const room = createRoom({
       roomId,
       clientId,
@@ -80,6 +86,10 @@ export function App() {
       }
     });
 
+    room.onStrokesSync((strokes) => {
+      rendererRef.current?.setStrokes(strokes);
+    });
+
     room.onRemoteAction((remoteClientId, action) => {
       if (action.type === 'cursor') {
         interpolation.pushSample(remoteClientId, action.x, action.y, performance.now());
@@ -87,14 +97,12 @@ export function App() {
         rendererRef.current?.emitReaction(action.emoji, action.x, action.y);
       } else if (action.type === 'tap_target') {
         setSyncScore((prev) => prev + action.delta);
+      } else if (action.type === 'stroke') {
+        rendererRef.current?.addStroke(action.stroke);
+      } else if (action.type === 'clear_strokes') {
+        rendererRef.current?.clearStrokes();
       }
     });
-
-    if (canvasRef.current) {
-      const renderer = new CanvasRenderer(canvasRef.current, interpolation, clientId);
-      rendererRef.current = renderer;
-      renderer.start();
-    }
 
     return () => {
       rendererRef.current?.destroy();
@@ -120,8 +128,7 @@ export function App() {
     };
 
     let animTime = 0;
-    let strokeCounter = 0;
-    let currentStroke: { points: Array<{ x: number; y: number }>; color: string; width: number } | null = null;
+    let tickCounter = 0;
 
     const interval = setInterval(() => {
       animTime += 0.04;
@@ -138,22 +145,9 @@ export function App() {
         virtualParticipant,
       ]);
 
-      // Periodically draw a short collaborative stroke
-      strokeCounter++;
-      if (strokeCounter % 4 === 0 && strokeCounter < 120) {
-        if (!currentStroke) {
-          currentStroke = { points: [{ x: vx, y: vy }], color: '#7c3aed', width: 2 };
-        } else {
-          currentStroke.points.push({ x: vx, y: vy });
-          if (currentStroke.points.length > 15) {
-            rendererRef.current?.addStroke({ ...currentStroke });
-            currentStroke = null;
-          }
-        }
-      }
-
       // Periodically trigger a subtle reaction
-      if (strokeCounter % 150 === 0) {
+      tickCounter++;
+      if (tickCounter % 150 === 0) {
         rendererRef.current?.emitReaction('✨', vx, vy, 8);
       }
     }, 33); // 30Hz
@@ -188,8 +182,13 @@ export function App() {
     roomRef.current.sendAction({ type: 'cursor', x, y });
 
     if (isDrawing && currentStrokeRef.current) {
-      currentStrokeRef.current.points.push({ x, y });
-      rendererRef.current?.addStroke({ ...currentStrokeRef.current });
+      const pts = currentStrokeRef.current.points;
+      const lastPt = pts[pts.length - 1];
+      const distSq = (x - lastPt.x) ** 2 + (y - lastPt.y) ** 2;
+      if (distSq > 0.000004 && pts.length < 300) {
+        pts.push({ x, y });
+        rendererRef.current?.setLocalDrawingStroke(currentStrokeRef.current);
+      }
     }
   }, [isDrawing]);
 
@@ -202,12 +201,14 @@ export function App() {
 
     if (activeTool === 'pen') {
       setIsDrawing(true);
-      currentStrokeRef.current = {
+      const newStroke: DrawStroke = {
+        id: `stroke_${clientId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         points: [{ x, y }],
         color: penColor,
         width: 2.5,
       };
-      rendererRef.current?.addStroke(currentStrokeRef.current);
+      currentStrokeRef.current = newStroke;
+      rendererRef.current?.setLocalDrawingStroke(newStroke);
     } else {
       const emojis = ['⚡', '✨', '🎯', '🔥', '🚀'];
       const emoji = emojis[Math.floor(Math.random() * emojis.length)];
@@ -222,11 +223,25 @@ export function App() {
         variant: 'burst',
       });
     }
-  }, [activeTool, penColor]);
+  }, [activeTool, penColor, clientId]);
 
   const handleMouseUp = useCallback(() => {
-    setIsDrawing(false);
-    currentStrokeRef.current = null;
+    if (isDrawing && currentStrokeRef.current) {
+      const strokeToCommit = currentStrokeRef.current;
+      rendererRef.current?.addStroke(strokeToCommit);
+      rendererRef.current?.setLocalDrawingStroke(null);
+      roomRef.current?.sendAction({
+        type: 'stroke',
+        stroke: strokeToCommit,
+      });
+      currentStrokeRef.current = null;
+      setIsDrawing(false);
+    }
+  }, [isDrawing]);
+
+  const handleClearStrokes = useCallback(() => {
+    rendererRef.current?.clearStrokes();
+    roomRef.current?.sendAction({ type: 'clear_strokes' });
   }, []);
 
   // Collaborative Sync Target Action
@@ -687,7 +702,7 @@ export function App() {
                 <div style={{ height: '1px', backgroundColor: '#f1f5f9', margin: '2px 0' }} />
 
                 <button
-                  onClick={() => rendererRef.current?.clearStrokes()}
+                  onClick={handleClearStrokes}
                   title="Clear Strokes"
                   style={{
                     width: '30px',
@@ -713,6 +728,7 @@ export function App() {
                 onMouseMove={handleMouseMove}
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
                 style={{
                   position: 'relative',
                   flex: 1,
