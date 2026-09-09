@@ -311,6 +311,17 @@ syncspace-realtime-collaboration/
 
 ---
 
+## Author & Creator
+
+**Cherukuri Venkata Karthikeya**  
+*Full-Stack Real-Time Systems & Frontend Engineer*
+
+- 🌐 **LinkedIn:** [linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/](https://www.linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/)
+- 🐙 **GitHub:** [@VenkataKarthikeya-eng](https://github.com/VenkataKarthikeya-eng)
+- ✉️ **Email:** [venkatakarthikeya2005@gmail.com](mailto:venkatakarthikeya2005@gmail.com)
+
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

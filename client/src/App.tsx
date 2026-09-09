@@ -41,6 +41,7 @@ export function App() {
 
   // Developer Telemetry Drawer State
   const [showTelemetry, setShowTelemetry] = useState<boolean>(false);
+  const [showFloater, setShowFloater] = useState<boolean>(true);
   const [simLatency, setSimLatency] = useState<number>(0);
   const [simDropRate, setSimDropRate] = useState<number>(0);
   const [renderDelay, setRenderDelay] = useState<number>(60);
@@ -342,6 +343,33 @@ export function App() {
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <a
+            href="https://github.com/VenkataKarthikeya-eng"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Cherukuri Venkata Karthikeya on GitHub"
+            style={{
+              backgroundColor: '#f8fafc',
+              color: '#0f172a',
+              border: '1px solid #e2e8f0',
+              borderRadius: '7px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+            <span>Karthikeya</span>
+          </a>
+
           <button
             onClick={() => setShowTelemetry(!showTelemetry)}
             style={{
@@ -1144,49 +1172,175 @@ export function App() {
         </div>
       </section>
 
-      {/* 6. CLEAN DEVELOPER FOOTER */}
+      {/* 6. COMPREHENSIVE DEVELOPER FOOTER */}
       <footer style={{
         borderTop: '1px solid #e2e8f0',
         backgroundColor: '#f8fafc',
-        padding: '32px',
+        padding: '44px 32px 32px 32px',
         marginTop: 'auto',
       }}>
         <div style={{
           maxWidth: '1360px',
           margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '32px',
+          marginBottom: '32px',
+        }}>
+          {/* Col 1: Brand & Project */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '6px',
+                backgroundColor: '#0f172a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+              </div>
+              <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', fontFamily: 'var(--font-heading)' }}>
+                SyncSpace
+              </span>
+            </div>
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, margin: 0, maxWidth: '340px' }}>
+              Real-time multiplayer canvas and state synchronization engine engineered from first principles using native RFC 6455 WebSockets, dead-reckoning extrapolation, and cubic Hermite interpolation.
+            </p>
+          </div>
+
+          {/* Col 2: Author Profile */}
+          <div>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>
+              Creator &amp; Lead Engineer
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                Cherukuri Venkata Karthikeya
+              </div>
+              <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, margin: 0 }}>
+                Specialized in Real-Time Systems, Low-Latency WebSocket Architectures, and Interactive Frontend Engineering.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                <a
+                  href="mailto:venkatakarthikeya2005@gmail.com"
+                  style={{
+                    fontSize: '12px',
+                    color: '#2563eb',
+                    textDecoration: 'none',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
+                  venkatakarthikeya2005@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Col 3: Social & Portfolio Links */}
+          <div>
+            <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px' }}>
+              Social &amp; Profiles
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <a
+                href="https://www.linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13px',
+                  color: '#334155',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.color = '#0a66c2')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#334155')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#0a66c2">
+                  <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+                </svg>
+                LinkedIn Profile
+              </a>
+
+              <a
+                href="https://github.com/VenkataKarthikeya-eng"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13px',
+                  color: '#334155',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.color = '#0f172a')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#334155')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                GitHub Profile (@VenkataKarthikeya-eng)
+              </a>
+
+              <a
+                href="mailto:venkatakarthikeya2005@gmail.com"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13px',
+                  color: '#334155',
+                  textDecoration: 'none',
+                  fontWeight: 500,
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.color = '#059669')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#334155')}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                venkatakarthikeya2005@gmail.com
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom copyright line */}
+        <div style={{
+          maxWidth: '1360px',
+          margin: '0 auto',
+          borderTop: '1px solid #e2e8f0',
+          paddingTop: '20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '16px',
+          gap: '12px',
+          fontSize: '12px',
+          color: '#94a3b8',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              borderRadius: '5px',
-              backgroundColor: '#0f172a',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-              </svg>
-            </div>
-            <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', fontFamily: 'var(--font-heading)' }}>
-              SyncSpace
-            </span>
-            <span style={{ fontSize: '12px', color: '#94a3b8', marginLeft: '6px' }}>
-              — Real-Time Multiplayer State Sync
-            </span>
+          <div>
+            &copy; {new Date().getFullYear()} SyncSpace &middot; Designed &amp; Developed by <strong style={{ color: '#0f172a' }}>Cherukuri Venkata Karthikeya</strong>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', gap: '16px' }}>
             <span>Built for FLAM AI Frontend R&amp;D</span>
-            <span>•</span>
+            <span>&bull;</span>
             <a href="#demo" style={{ color: '#64748b', textDecoration: 'none' }}>Live Sandbox</a>
-            <span>•</span>
+            <span>&bull;</span>
             <a href="#telemetry" onClick={(e) => { e.preventDefault(); setShowTelemetry(true); }} style={{ color: '#64748b', textDecoration: 'none' }}>Telemetry Lab</a>
           </div>
         </div>
@@ -1433,6 +1587,231 @@ export function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* 8. FLOATING DEVELOPER PROFILE ("FLOTTER") */}
+      {showFloater ? (
+        <aside
+          aria-label="Developer Portfolio Floater"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 90,
+            backgroundColor: 'rgba(15, 23, 42, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '16px',
+            padding: '12px 16px',
+            boxShadow: '0 12px 32px -4px rgba(15, 23, 42, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+            color: '#ffffff',
+            maxWidth: '360px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          {/* Header Row: Avatar, Name & Close button */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '12px',
+                color: '#ffffff',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)',
+                flexShrink: 0,
+              }}>
+                CVK
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+                  Cherukuri Venkata Karthikeya
+                </span>
+                <span style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+                  Project Creator &amp; Engineer
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowFloater(false)}
+              title="Minimize card"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: 'none',
+                color: '#94a3b8',
+                borderRadius: '6px',
+                width: '22px',
+                height: '22px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                lineHeight: 1,
+                padding: 0,
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.color = '#ffffff')}
+              onMouseOut={(e) => (e.currentTarget.style.color = '#94a3b8')}
+            >
+              &times;
+            </button>
+          </div>
+
+          {/* Action Links Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <a
+              href="https://www.linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Connect on LinkedIn"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px',
+                padding: '6px 8px',
+                backgroundColor: 'rgba(37, 99, 235, 0.22)',
+                border: '1px solid rgba(37, 99, 235, 0.45)',
+                borderRadius: '8px',
+                color: '#93c5fd',
+                fontSize: '11px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.4)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(37, 99, 235, 0.22)';
+                e.currentTarget.style.color = '#93c5fd';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+              </svg>
+              LinkedIn
+            </a>
+
+            <a
+              href="https://github.com/VenkataKarthikeya-eng"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="View GitHub Profile"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px',
+                padding: '6px 8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                color: '#e2e8f0',
+                fontSize: '11px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.16)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                e.currentTarget.style.color = '#e2e8f0';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              GitHub
+            </a>
+
+            <a
+              href="mailto:venkatakarthikeya2005@gmail.com"
+              title="Email: venkatakarthikeya2005@gmail.com"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '5px',
+                padding: '6px 8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '8px',
+                color: '#e2e8f0',
+                fontSize: '11px',
+                fontWeight: 600,
+                textDecoration: 'none',
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.16)';
+                e.currentTarget.style.color = '#ffffff';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+                e.currentTarget.style.color = '#e2e8f0';
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+              Email
+            </a>
+          </div>
+        </aside>
+      ) : (
+        <button
+          onClick={() => setShowFloater(true)}
+          title="Show Cherukuri Venkata Karthikeya Profile"
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 90,
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '9999px',
+            padding: '8px 14px',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
+            color: '#ffffff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '12px',
+            fontWeight: 600,
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+          onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+        >
+          <span style={{
+            width: '22px',
+            height: '22px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '11px',
+            fontWeight: 700,
+          }}>
+            👨‍💻
+          </span>
+          <span>Cherukuri Venkata Karthikeya</span>
+        </button>
       )}
     </div>
   );

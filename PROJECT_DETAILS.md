@@ -268,3 +268,12 @@ A: 3–5 days. Focus on getting the core sync loop genuinely correct and smooth 
 #### Final note
 
 This assignment is about understanding what real-time sync libraries actually do under the hood — message design, throttling, interpolation, and honest failure handling — not about wiring one up. A small, correct, smooth 2-action demo beats a large, janky one.
+
+---
+
+### Author & Candidate Details
+
+- **Name:** Cherukuri Venkata Karthikeya
+- **LinkedIn:** [https://www.linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/](https://www.linkedin.com/in/cherukuri-venkata-karthikeya-4b54393ab/)
+- **GitHub:** [https://github.com/VenkataKarthikeya-eng](https://github.com/VenkataKarthikeya-eng)
+- **Email:** [venkatakarthikeya2005@gmail.com](mailto:venkatakarthikeya2005@gmail.com)
